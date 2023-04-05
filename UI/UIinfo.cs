@@ -42,7 +42,6 @@ public class UIinfo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         if (Input.GetKeyDown(stKey))
         {
             status.SetActive(!status.activeSelf);

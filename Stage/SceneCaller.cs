@@ -11,4 +11,12 @@ public class SceneCaller : MonoBehaviour
         PlayerPrefs.SetInt("CHP", 3);
         SceneManager.LoadScene(scene);
     }
+
+    public void GameStart(string scene)
+    {
+        PlayerPrefs.SetInt("CHP", 3);
+        SceneManager.LoadScene(scene);
+        PlayerPrefs.SetFloat("x", -6);
+        PlayerPrefs.SetFloat("x", -4.5f);
+    }
 }

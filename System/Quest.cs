@@ -13,7 +13,7 @@ public class Quest : MonoBehaviour
         {
             int i = PlayerPrefs.GetInt("CurrentQuest");
             GameObject questTabClone = Instantiate(questTab, new Vector3(0, 0, 1), Quaternion.identity);
-            questTabClone.name = PlayerPrefs.GetInt("CurrentQuest").ToString();
+            questTabClone.name = i.ToString();
             PlayerPrefs.SetInt("CurrentQuest", 0);
             questTabClone.transform.SetParent(gameObject.transform);
             questTabClone.transform.localScale = new Vector3(1, 1, 1);
@@ -43,7 +43,7 @@ public class Quest : MonoBehaviour
     {
         if (complete)
         {
-            PlayerPrefs.SetInt("GOLD", PlayerPrefs.GetInt("GOLD") + QuestSummary.reward[c]);
+            QuestSummary.Complete(c);
             Destroy(GameObject.Find(c.ToString()));
             DesOff();
         }

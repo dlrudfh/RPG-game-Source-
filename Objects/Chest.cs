@@ -1,12 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public class Portal : MonoBehaviour
+public class Chest : MonoBehaviour
 {
-    [SerializeField] private string scene;
-    [SerializeField] private float x;
-    [SerializeField] private float y;
     bool nearby;
+    bool open;
+    [SerializeField] Sprite img;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -28,13 +28,12 @@ public class Portal : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyUp((KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("ACTION"), true)) && nearby)
+        if (!open && nearby && Input.GetKeyUp((KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("ACTION"), true)))
         {
-            SceneManager.LoadScene(scene);
-            PlayerPrefs.SetFloat("x", x);
-            PlayerPrefs.SetFloat("y", y);
+            open = true;
             GetComponent<AudioSource>().Play();
-            nearby = false;
+            PlayerPrefs.SetInt("GOLD", PlayerPrefs.GetInt("GOLD") + 10);
+            GetComponent<SpriteRenderer>().sprite = img;
         }
     }
 }

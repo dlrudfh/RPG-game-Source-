@@ -19,9 +19,9 @@ public class Spawner : MonoBehaviour
 
     private void Awake()
     {
-        StartCoroutine("SpawnStart");
+        if(enemyPrefab!=null)StartCoroutine("SpawnStart");
         PlayerPrefs.SetInt("spawnCount", 0);
-        Instantiate(player, new Vector3(-3, -4, 0), Quaternion.identity);
+        Instantiate(player, new Vector3(PlayerPrefs.GetFloat("x"), PlayerPrefs.GetFloat("y"), 0), Quaternion.identity);
     }
 
     private IEnumerator SpawnStart()
