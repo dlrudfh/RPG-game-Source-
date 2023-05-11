@@ -7,7 +7,6 @@ public class Portal : MonoBehaviour
     [SerializeField] private float x;
     [SerializeField] private float y;
     bool nearby;
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -28,6 +27,7 @@ public class Portal : MonoBehaviour
 
     private void Update()
     {
+        GetComponent<AudioSource>().volume = PlayerPrefs.GetFloat("EFFECT");
         if (Input.GetKeyUp((KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("ACTION"), true)) && nearby)
         {
             SceneManager.LoadScene(scene);

@@ -10,6 +10,12 @@ public class Gold : MonoBehaviour
     {
         pick = GetComponent<AudioSource>();
     }
+
+    private void Update()
+    {
+        GetComponent<AudioSource>().volume = PlayerPrefs.GetFloat("EFFECT");
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player") && alreadyPick == false)

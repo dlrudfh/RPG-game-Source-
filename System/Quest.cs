@@ -1,12 +1,25 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Quest : MonoBehaviour
+public class Quest : MonoBehaviour, IDragHandler
 {
     private int questCount = 0;
     [SerializeField] private int c = 0;
     [SerializeField] private bool complete;
     [SerializeField] GameObject questTab;
+    RectTransform rectTransform;
+    [SerializeField] Canvas canvas;
+
+    private void Awake()
+    {
+        rectTransform = GetComponent<RectTransform>();
+    }
+    public void OnDrag(PointerEventData eventData)
+    {
+        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+    }
+
     void Update()
     {
         if (PlayerPrefs.GetInt("CurrentQuest") != 0)
@@ -27,8 +40,9 @@ public class Quest : MonoBehaviour
         Transform des = transform.GetChild(1);
         des.gameObject.SetActive(true);
         c = n;
-        des.GetComponentInChildren<TextMeshProUGUI>().text = QuestSummary.description[n];
-        if((QuestSummary.progress[n] >= QuestSummary.goal[n]))
+        des.Find("script").GetComponent<TextMeshProUGUI>().text = QuestSummary.description[n];
+        des.Find("reward").GetComponent<TextMeshProUGUI>().text = "Reward : " + QuestSummary.reward[n] + "G";
+        if ((QuestSummary.progress[n] >= QuestSummary.goal[n]))
         {
             complete = true;
             des.Find("Complete").GetComponentInChildren<TextMeshProUGUI>().text = "Complete";

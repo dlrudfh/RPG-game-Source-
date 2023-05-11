@@ -18,8 +18,8 @@ public class ChatWindow : MonoBehaviour
 
     public void BranchValue(int i)
     {
-        GameObject.Find("Npc").GetComponent<Npc>().questAccept = i;
-        GameObject.Find("Npc").GetComponent<Npc>().branchSelect = true;
+        GameObject.FindGameObjectWithTag("NPC").GetComponent<Npc>().questAccept = i;
+        GameObject.FindGameObjectWithTag("NPC").GetComponent<Npc>().branchSelect = true;
         BranchOff();
     }
 }

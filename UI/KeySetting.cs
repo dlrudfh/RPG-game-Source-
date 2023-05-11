@@ -4,12 +4,6 @@ using UnityEngine;
 
 public class KeySetting : MonoBehaviour
 {
-    GameObject player;
-
-    private void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player");
-    }
 
     private void OnGUI()
     {
@@ -20,7 +14,7 @@ public class KeySetting : MonoBehaviour
             //if(Regex.IsMatch(e.keyCode.ToString(), @"[A-Z]$")){
                 PlayerPrefs.SetString(key, e.keyCode.ToString());
             //}
-            player.GetComponent<Player>().Key();
+            GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Key();
             GameObject.FindGameObjectWithTag(key).GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString(key);
             transform.parent.parent.GetComponentInParent<UIinfo>().stKey = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("STATUS"), true);
             transform.parent.parent.GetComponentInParent<UIinfo>().skKey = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("SKILL"), true);

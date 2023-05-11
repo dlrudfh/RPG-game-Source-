@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class Movement2D : MonoBehaviour
 {
-	private float moveSpeed;        // 이동 속도
+	private float moveSpeed;
 	private Vector3 moveDirection;
-	private int jumpCount;
+	public int jumpCount;
 	private bool doNotJump;
-	private bool doNotDash;
+	public bool doNotDash;
 	private Animator anime;
 
 	public void Setup(float speed, Vector3 direction)
@@ -15,25 +15,29 @@ public class Movement2D : MonoBehaviour
 		moveSpeed = speed;
 	}
 
-	public void Jump(Animator a, AudioSource j)
+    public void Jump(Animator a, AudioSource j)
     {
 		anime = a;
 		if (doNotJump == false)
         {
 			anime.SetBool("isJumping", true);
-			if (gameObject.GetComponent<Rigidbody2D>().velocity.y == 0)
-			{
-				j.Play();
-				if (jumpCount > 1) jumpCount = 0;
-				jumpCount++;
-				gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.up * 10.0f;
-			}
-			else if (jumpCount <= 1)
-			{
+			if (jumpCount <= 1)
+            {
 				j.Play();
 				jumpCount++;
-				gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.up * 10.0f;
+				GetComponent<Rigidbody2D>().velocity = Vector2.up * 10;
 			}
+		}
+	}
+
+	public void Down(Animator a, AudioSource j)
+	{
+		anime = a;
+		if (GetComponent<Rigidbody2D>().velocity.y == 0)
+		{
+			anime.SetBool("isFalling", true);
+			j.Play();
+			PlayerPrefs.SetInt("FALL", 1);
 		}
 	}
 
@@ -59,7 +63,7 @@ public class Movement2D : MonoBehaviour
 		doNotJump = false;
 		gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
 		gameObject.GetComponent<Rigidbody2D>().gravityScale = 3;
-		Invoke("DoNotDash", 3.3f-(0.3f*PlayerPrefs.GetInt("DASH")));
+		Invoke("DoNotDash", 3.3f-(0.3f*PlayerPrefs.GetInt("DASHLV")));
 	}
 
 	private void DoNotDash()

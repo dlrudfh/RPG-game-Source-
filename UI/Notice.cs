@@ -15,14 +15,13 @@ public class Notice : MonoBehaviour
             pastLevel = PlayerPrefs.GetInt("LV");
             if(pastLevel == 3)
             {
-                gameObject.GetComponent<TextMeshProUGUI>().text = "Now you can use Charge attack!!";
+                message("Now you can use Charge attack!!");
             }
             else if (pastLevel == 5)
             {
-                gameObject.GetComponent<TextMeshProUGUI>().text = "Now you can use Dash!!";
+                message("Now you can use Dash!!");
             }
-            else gameObject.GetComponent<TextMeshProUGUI>().text = "LEVEL UP!!";
-            Invoke("clean", 2f);
+            else message("LEVEL UP!!");
         }
 
     }
@@ -30,6 +29,7 @@ public class Notice : MonoBehaviour
     public void message(string texts)
     {
         gameObject.GetComponent<TextMeshProUGUI>().text = texts;
+        Invoke("clean", 2f);
     }
 
     private void clean()

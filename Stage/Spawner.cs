@@ -16,28 +16,44 @@ public class Spawner : MonoBehaviour
     [SerializeField]
     private float spawnTime;
     private int spawnCount;
+    Transform walls;
+    [SerializeField] bool spawn;
+    [SerializeField] int spawnLimit = 20;
 
     private void Awake()
     {
-        if(enemyPrefab!=null)StartCoroutine("SpawnStart");
+        if (spawn)
+        {
+            walls = GameObject.Find("walls").transform;
+            StartCoroutine("SpawnStart");
+        }
         PlayerPrefs.SetInt("spawnCount", 0);
-        Instantiate(player, new Vector3(PlayerPrefs.GetFloat("x"), PlayerPrefs.GetFloat("y"), 0), Quaternion.identity);
+        GameObject p = Instantiate(player, new Vector3(PlayerPrefs.GetFloat("x"), PlayerPrefs.GetFloat("y"), 0), Quaternion.identity);
+        //GameObject p = Instantiate(player, new Vector3(11.5f, 1, 0), Quaternion.identity); // 플레이어 위치 테스트용 임의설정
+        p.GetComponent<Player>().stage = stage;
     }
 
     private IEnumerator SpawnStart()
     {
+        yield return new WaitForSeconds(spawnTime);
         spawnCount = PlayerPrefs.GetInt("spawnCount");
-        if (spawnCount <= 10)
+        Transform floor = walls.GetChild(Random.Range(0, walls.childCount));
+        while (true)
+        {
+            if(floor.TryGetComponent(out Wall w))
+                if (w.canSpawn) break;
+            floor = walls.GetChild(Random.Range(0, walls.childCount));
+        }
+        if (spawnCount <= spawnLimit)
         {
             spawnCount++;
             PlayerPrefs.SetInt("spawnCount", spawnCount);
-            float x = Random.Range(stage.LimitMin.x, stage.LimitMax.x);
-            float y = Random.Range(stage.LimitMin.y + 1.5f, stage.LimitMax.y);
+            float x = Random.Range(floor.position.x - floor.localScale.x/2 + 0.5f, floor.position.x + floor.localScale.x/2 - 2.5f);
+            float y = floor.position.y + 1; 
             Vector3 position = new Vector3(x, y, 1);
             GameObject enemyClone = Instantiate(enemyPrefab, position, Quaternion.identity);
             SpawnHp(enemyClone);
         }
-        yield return new WaitForSeconds(spawnTime);
         StopCoroutine("SpawnStart");
         StartCoroutine("SpawnStart");
     }

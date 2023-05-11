@@ -3,19 +3,19 @@ using UnityEngine.SceneManagement;
 public class PlayerLevel : MonoBehaviour
 {
     public int level;
-    public int damage;
-    public int exp;
-    public int maxHp;
-    public int curHp;
+    public float damage;
+    public float exp;
+    public float maxHp;
+    public float curHp;
     public int point;
     public int gold;
     public int chargeshot;
     public int dash;
 
-    public void GetExp(int enemyExp)
+    public void GetExp(float enemyExp)
     {
         level = PlayerPrefs.GetInt("LV");
-        exp = PlayerPrefs.GetInt("XP");
+        exp = PlayerPrefs.GetFloat("XP");
 
         exp += enemyExp;
         if (exp >= level)
@@ -23,64 +23,84 @@ public class PlayerLevel : MonoBehaviour
             exp -= level;
             PlayerPrefs.SetInt("LV", ++level);
             PlayerPrefs.SetInt("PTS", ++point);
-            PlayerPrefs.SetInt("CHP", PlayerPrefs.GetInt("HP"));
+            PlayerPrefs.SetFloat("CHP", PlayerPrefs.GetFloat("HP"));
         }
-        PlayerPrefs.SetInt("XP", exp);
-        
+        PlayerPrefs.SetFloat("XP", exp);
+
     }
 
     public void DamageUp()
     {
         point = PlayerPrefs.GetInt("PTS");
-        damage = PlayerPrefs.GetInt("DMG");
+        damage = PlayerPrefs.GetFloat("DMG");
         if (point > 0)
         {
-            PlayerPrefs.SetInt("DMG", ++damage);
+            PlayerPrefs.SetFloat("DMG", ++damage);
             PlayerPrefs.SetInt("PTS", --point);
         }
         
     }
 
+    public void PointUp()
+    {
+        point = PlayerPrefs.GetInt("PTS");
+        gold = PlayerPrefs.GetInt("GOLD");
+        if (gold >= 100)
+        {
+            PlayerPrefs.SetInt("PTS", ++point);
+            PlayerPrefs.SetInt("GOLD", gold-100);
+        }
+
+    }
+
     public void HpUp()
     {
         point = PlayerPrefs.GetInt("PTS");
-        maxHp = PlayerPrefs.GetInt("HP");
-        curHp = PlayerPrefs.GetInt("CHP");
+        maxHp = PlayerPrefs.GetFloat("HP");
+        curHp = PlayerPrefs.GetFloat("CHP");
         if (point > 0)
         {
-            PlayerPrefs.SetInt("HP", ++maxHp);
-            PlayerPrefs.SetInt("CHP", ++curHp);
+            PlayerPrefs.SetFloat("HP", ++maxHp);
+            PlayerPrefs.SetFloat("CHP", ++curHp);
             PlayerPrefs.SetInt("PTS", --point);
         }
 
     }
+
+    public void SkillLVUP(string skillLV)
+    {
+        if (PlayerPrefs.GetInt("PTS") > 0 && PlayerPrefs.GetInt(skillLV) < 10)
+        {
+            PlayerPrefs.SetInt(skillLV, PlayerPrefs.GetInt(skillLV) + 1);
+            PlayerPrefs.SetInt("PTS", PlayerPrefs.GetInt("PTS") - 1);
+        }
+    }
+    /*
     public void ChargeShotLVUP()
     {
         point = PlayerPrefs.GetInt("PTS");
-        chargeshot = PlayerPrefs.GetInt("CHARGESHOT");
+        chargeshot = PlayerPrefs.GetInt("CHARGESHOTLV");
         if (point > 0 && chargeshot < 10)
         {
-            PlayerPrefs.SetInt("CHARGESHOT", ++chargeshot);
+            PlayerPrefs.SetInt("CHARGESHOTLV", ++chargeshot);
             PlayerPrefs.SetInt("PTS", --point);
         }
-
     }
     public void DashLVUP()
     {
         point = PlayerPrefs.GetInt("PTS");
-        dash = PlayerPrefs.GetInt("DASH");
+        dash = PlayerPrefs.GetInt("DASHLV");
         if (point > 0 && dash < 10)
         {
-            PlayerPrefs.SetInt("DASH", ++dash);
+            PlayerPrefs.SetInt("DASHLV", ++dash);
             PlayerPrefs.SetInt("PTS", --point);
         }
+    }*/
 
-    }
-
-    public void TakeDamage(int enemyDmg, Animator a)
+    public void TakeDamage(float enemyDmg, Animator a)
     {
-        PlayerPrefs.SetInt("CHP", PlayerPrefs.GetInt("CHP")-enemyDmg);
-        if (PlayerPrefs.GetInt("CHP") <= 0)
+        PlayerPrefs.SetFloat("CHP", PlayerPrefs.GetFloat("CHP")-enemyDmg);
+        if (PlayerPrefs.GetFloat("CHP") <= 0)
         {
             a.SetBool("isDying", true);
             a.SetBool("isRunning", false);
@@ -93,6 +113,7 @@ public class PlayerLevel : MonoBehaviour
 
     private void Gameover()
     {
+        GameObject.Find("System").GetComponent<UIinfo>().Deactivate();
         SceneManager.LoadScene("GameOver");
     }
 

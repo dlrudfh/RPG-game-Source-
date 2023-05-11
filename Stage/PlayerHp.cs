@@ -8,7 +8,7 @@ public class PlayerHp : MonoBehaviour
 
     private void Update()
     {
-        GetComponent<Slider>().value = (float)PlayerPrefs.GetInt("CHP")
-                                     / (float)PlayerPrefs.GetInt("HP");
+        GetComponent<Slider>().value = PlayerPrefs.GetFloat("CHP")
+                                     / PlayerPrefs.GetFloat("HP");
     }
 }

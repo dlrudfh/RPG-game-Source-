@@ -7,9 +7,9 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private GameObject player;
     [SerializeField]
-    private  int maxHp;
+    private  float maxHp;
     [SerializeField]
-    private  int curHp;
+    private  float curHp;
     [SerializeField]
     private GameObject coin;
     [SerializeField]
@@ -17,12 +17,12 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private float time;
     private int direction = 1;
-    [SerializeField] Animator anime;
+    public Animator anime;
     private bool dead;
-    [SerializeField] private int exp = 1;
+    [SerializeField] private float exp = 1;
 
-    public int MaxHp => maxHp;
-    public int CurHp => curHp;
+    public float MaxHp => maxHp;
+    public float CurHp => curHp;
 
     private void Awake()
     {
@@ -47,16 +47,14 @@ public class Enemy : MonoBehaviour
         if (collision.CompareTag("bullet") || collision.CompareTag("chargedBullet"))
         {
             if (collision.CompareTag("bullet")) Destroy(collision.gameObject);
-            if (collision.CompareTag("bullet")) curHp -= PlayerPrefs.GetInt("DMG");
-            else {
-                curHp -= (int)(PlayerPrefs.GetInt("DMG") * (1 + PlayerPrefs.GetInt("CHARGESHOT")*0.4f));
-                Debug.Log(PlayerPrefs.GetInt("DMG") * (1 + PlayerPrefs.GetInt("CHARGESHOT") * 0.4f));
-                Debug.Log((int)(PlayerPrefs.GetInt("DMG") * (1 + PlayerPrefs.GetInt("CHARGESHOT") * 0.4f)));
-            }
+            if (collision.CompareTag("bullet")) curHp -= PlayerPrefs.GetFloat("DMG");
+            else curHp -= PlayerPrefs.GetFloat("DMG") * (1 + PlayerPrefs.GetInt("CHARGESHOT")*0.4f);
             StopCoroutine("HitColorAnimation");
             StartCoroutine("HitColorAnimation");
             if (curHp <= 0)
             {
+                GetComponent<BoxCollider2D>().enabled = false;
+                //GetComponent<Rigidbody2D>().gravityScale = 0;
                 player.GetComponent<PlayerLevel>().GetExp(exp);
                 anime.SetBool("Die", true);
                 int spawnCount = PlayerPrefs.GetInt("spawnCount") - 1;
@@ -64,7 +62,6 @@ public class Enemy : MonoBehaviour
                 Invoke("DropItem", 1.0f);
             }
         }
-        
     }
 
     private void DropItem()

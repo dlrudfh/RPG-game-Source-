@@ -1,38 +1,45 @@
+using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float speed = 5.0f;
-    [SerializeField] private StageData stage;
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private GameObject chargedBullet;
-    [SerializeField] private KeyCode left;
-    [SerializeField] private KeyCode right;
-    [SerializeField] private KeyCode attack;
-    [SerializeField] private KeyCode jump;
-    [SerializeField] private KeyCode dash;
-    [SerializeField] private KeyCode action;
-    [SerializeField] private Animator anime;
-    private AudioSource audioSource;
-    [SerializeField] private AudioClip shootSound;
-    [SerializeField] private AudioClip chargeCompleteSound;
-    [SerializeField] private AudioClip chargeShootSound;
-    [SerializeField] private AudioClip jumpSound;
-    [SerializeField] private AudioClip dashSound;
-    [SerializeField] private AudioClip attackSound;
-    [SerializeField] private AudioClip hitSound;
-    private int dir;
-    private float startTime;
-    private bool chargeComplete = true;
+    [SerializeField] float speed = 5.0f;
+    public StageData stage;
+    [SerializeField] GameObject bulletPrefab;
+    [SerializeField] GameObject chargedBullet;
+    [SerializeField] KeyCode left;
+    [SerializeField] KeyCode right;
+    [SerializeField] KeyCode attack;
+    [SerializeField] KeyCode jump;
+    [SerializeField] KeyCode down;
+    [SerializeField] bool canDown;
+    [SerializeField] KeyCode dash;
+    [SerializeField] KeyCode heal;
+    [SerializeField] KeyCode action;
+    [SerializeField] Animator anime;
+    AudioSource audioSource;
+    [SerializeField] AudioClip shootSound;
+    [SerializeField] AudioClip chargeCompleteSound;
+    [SerializeField] AudioClip chargeShootSound;
+    [SerializeField] AudioClip jumpSound;
+    [SerializeField] AudioClip dashSound;
+    [SerializeField] AudioClip healSound;
+    [SerializeField] AudioClip attackSound;
+    [SerializeField] AudioClip hitSound;
+    int dir;
+    float startTime;
+    bool chargeComplete = true;
+    bool isAlreadyHurt = false;
+    bool ceiling;
 
-    private void Start()
+    void Start()
     {
         dir = 1;
         audioSource = GetComponent<AudioSource>();
         Key();
     }
 
-    private void playSound(string cond)
+    void playSound(string cond)
     {
         switch (cond)
         {
@@ -55,16 +62,30 @@ public class Player : MonoBehaviour
         audioSource.Play();
     }
 
-    private void Update()
+    void Update()
     {
+        GetComponent<AudioSource>().volume = PlayerPrefs.GetFloat("EFFECT");
         if (anime.GetBool("isDying")) return;
-        if (gameObject.GetComponent<Rigidbody2D>().velocity.y < 0)
+        if (GetComponent<Rigidbody2D>().velocity.y < 0)
         {
+            GetComponent<Movement2D>().jumpCount = GetComponent<Movement2D>().jumpCount == 2 ? 2 : 1;
             anime.SetBool("isJumping", false);
             anime.SetBool("isFalling", true);
-        }    
-        else anime.SetBool("isFalling", false);
-        if (PlayerPrefs.GetInt("DASH") > 0)
+        }
+        else if (GetComponent<Rigidbody2D>().velocity.y == 0)
+        {
+            if (!ceiling && !GetComponent<Movement2D>().doNotDash)
+            {
+                GetComponent<Movement2D>().jumpCount = 0;
+            }
+            anime.SetBool("isFalling", false);
+            anime.SetBool("isJumping", false);
+        }
+        else
+        {
+            anime.SetBool("isFalling", false);
+        }
+        if (PlayerPrefs.GetInt("DASHLV") > 0)
         {
             if (Input.GetKeyDown(dash))
             {
@@ -73,10 +94,23 @@ public class Player : MonoBehaviour
                 anime.SetBool("isFalling", true);
             }
         }
+        if (PlayerPrefs.GetInt("HEALLV") > 0)
+        {
+            if (Input.GetKeyDown(heal))
+            {
+                audioSource.clip = healSound;
+                GetComponent<Skills>().Heal(audioSource);
+            }
+        }
         if (Input.GetKeyDown(jump))
         {
             audioSource.clip = jumpSound;
-            gameObject.GetComponent<Movement2D>().Jump(anime, audioSource);
+            if (Input.GetKey(down) && canDown)
+            {
+                GetComponent<Movement2D>().Down(anime, audioSource);
+            }
+            else 
+                GetComponent<Movement2D>().Jump(anime, audioSource);
         }
         bool l = Input.GetKey(left);
         bool r = Input.GetKey(right);
@@ -93,7 +127,7 @@ public class Player : MonoBehaviour
             bullet.GetComponent<Movement2D>().Setup(10.0f, new Vector3(dir, 0, 0));
             Destroy(bullet, 2.0f);
         }
-        if (PlayerPrefs.GetInt("CHARGESHOT") > 0)
+        if (PlayerPrefs.GetInt("CHARGESHOTLV") > 0)
         {
             if(chargeComplete == false && Time.time - startTime >= 0.7f)
             {
@@ -114,60 +148,83 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         if (anime.GetBool("isDying")) return;
-        string t = collision.gameObject.tag;
-        if(t.Length > 5)
+        if (collision.TryGetComponent(out Wall w))
         {
-            if (t.Substring(0, 5) == "patte" || t.Substring(0, 5) == "enemy" || t.Substring(0, 5) == "bosss")
+            if (collision.transform.position.y > transform.position.y)
             {
-                playSound("Hit");
-                GetComponent<PlayerLevel>().TakeDamage(int.Parse(t.Substring(5)), anime);
-                if (t.Substring(0, 5) == "patte")
-                {
-                    Destroy(collision.gameObject);
-                }
-            }
-        }
-        else
-        {
-            anime.SetBool("isJumping", false);
-            anime.SetBool("isFalling", false);
+                ceiling = true;
+                if (w.canPass) collision.GetComponent<BoxCollider2D>().enabled = false;
+            }  
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerStay2D(Collider2D collision)
+    {
+        string t = collision.gameObject.tag;
+        if (t.Length > 5 && !isAlreadyHurt)
+        {
+            if (t.Substring(0, 5) == "patte" || t.Substring(0, 5) == "enemy" || t.Substring(0, 5) == "bosss"
+                || t.Substring(0, 5) == "obsta")
+            {
+                isAlreadyHurt = true;
+                StartCoroutine("HitColorAnimation");
+                if (t.Substring(0, 5) == "patte") Destroy(collision.gameObject);
+                playSound("Hit");
+                GetComponent<PlayerLevel>().TakeDamage(float.Parse(t.Substring(5)), anime);
+            }
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        ceiling = false;
+        if (collision.TryGetComponent(out Wall w))
+        {
+           if (w.canPass) collision.GetComponent<BoxCollider2D>().enabled = true;
+        }
+        
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
     {
         if (anime.GetBool("isDying")) return;
         string t = collision.gameObject.tag;
-        if (t.Length > 5)
+        if (collision.gameObject.TryGetComponent(out Wall w) && GetComponent<Rigidbody2D>().velocity.y == 0)
+            canDown = w.canPass;
+        else
         {
-            if (t.Substring(0, 5) == "patte" || t.Substring(0, 5) == "enemy" || t.Substring(0, 5) == "bosss")
-            {
-                playSound("Hit");
-                GetComponent<PlayerLevel>().TakeDamage(int.Parse(t.Substring(5)), anime);
-                if (t.Substring(0, 5) == "patte")
-                {
-                    Destroy(collision.gameObject);
-                }
-            }
+            canDown = false;
+            //if (t.Length > 5 && !isAlreadyHurt)
         }
+    }
+
+
+    IEnumerator HitColorAnimation()
+    {
+        GetComponent<SpriteRenderer>().color = Color.gray;
+        yield return new WaitForSeconds(0.5f);
+        GetComponent<SpriteRenderer>().color = Color.white;
+        isAlreadyHurt = false;
     }
 
     public void Key()
-    {
+    {      
         left = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("LEFT"), true);
         right = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("RIGHT"), true);
         jump = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("JUMP"), true);
+        down = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("DOWN"), true);
         attack = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("ATTACK"), true);
         dash = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("DASH"), true);
+        heal = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("HEAL"), true);
         action = (KeyCode)System.Enum.Parse(typeof(KeyCode), PlayerPrefs.GetString("ACTION"), true);
     }
 
-    private void LateUpdate()
+    void LateUpdate()
     {
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, stage.LimitMin.x, stage.LimitMax.x),
-                                         Mathf.Clamp(transform.position.y, stage.LimitMin.y, stage.LimitMax.y));
+                                         Mathf.Clamp(transform.position.y, stage.LimitMin.y-3, stage.LimitMax.y));
     }
 }

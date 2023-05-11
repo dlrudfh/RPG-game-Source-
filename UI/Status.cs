@@ -21,9 +21,9 @@ public class Status : MonoBehaviour, IDragHandler
     private void Update()
     {
         LV.GetComponent<TextMeshProUGUI>().text = "LV." + PlayerPrefs.GetInt("LV");
-        DMG.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("DMG").ToString();
-        HP.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("CHP").ToString() + "/" + PlayerPrefs.GetInt("HP").ToString();
-        XP.GetComponent<TextMeshProUGUI>().text = (float)PlayerPrefs.GetInt("XP") / PlayerPrefs.GetInt("LV") * 100 + "%";
+        DMG.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetFloat("DMG").ToString();
+        HP.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetFloat("CHP") + "/" + PlayerPrefs.GetFloat("HP");
+        XP.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetFloat("XP") / PlayerPrefs.GetInt("LV") * 100 + "%";
         GOLD.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("GOLD") + "G";
         PTS.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("PTS") + "PTS";
     }
