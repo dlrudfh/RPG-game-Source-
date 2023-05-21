@@ -3,19 +3,11 @@ using UnityEngine;
 
 public class PlayerInfo : MonoBehaviour
 {
-    int level;
-    float exp;
-    float maxHp;
-    float curHp;
-
     private void Update()
     {
-        level = PlayerPrefs.GetInt("LV");
-        exp = PlayerPrefs.GetFloat("XP");
-        maxHp = PlayerPrefs.GetFloat("HP");
-        curHp = PlayerPrefs.GetFloat("CHP");
-        gameObject.GetComponent<TextMeshProUGUI>().text = "\n<color=#f000ff>LV." + level + //분홍
-                                                          "\n<color=#000000>" + curHp + "/" + maxHp + //검정
-                                                          "\n<color=#000000>" + exp / level * 100 + "%";
+        // 화면 좌측 상단에 플레이어 정보 출력 UI에서 텍스트 부분을 담당함 
+        gameObject.GetComponent<TextMeshProUGUI>().text = "\n<color=#f000ff>LV." + PlayerPrefs.GetInt("LV") + //분홍
+                                                          "\n<color=#000000>" + PlayerPrefs.GetFloat("CHP") + "/" + PlayerPrefs.GetFloat("HP") + //검정
+                                                          "\n<color=#000000>" + PlayerPrefs.GetFloat("XP") / PlayerPrefs.GetInt("LV") * 100 + "%";
     }
 }

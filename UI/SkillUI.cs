@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 
+//Skill UI창
 public class SkillUI : MonoBehaviour, IDragHandler
 {
 
@@ -18,6 +19,9 @@ public class SkillUI : MonoBehaviour, IDragHandler
 
     private void Update()
     {
+        // 스킬 습득 제한 레벨 미만일 경우 관련 문구 출력
+        // 스킬을 마스터했을 경우 마스터했다는 문구 출력
+        // 스킬을 습득하는 중일 경우 스킬 레벨 출력
         if (PlayerPrefs.GetInt("LV") < 3)
             ChargeShot.GetComponent<TextMeshProUGUI>().text = "Required LV.3";
         else if (PlayerPrefs.GetInt("CHARGESHOTLV") == 10)
@@ -40,10 +44,10 @@ public class SkillUI : MonoBehaviour, IDragHandler
             Heal.GetComponent<TextMeshProUGUI>().text = "Heal LV." + PlayerPrefs.GetInt("HEALLV");
 
     }
+
+    //Skill UI는 마우스로 드래그가 가능하다.
     public void OnDrag(PointerEventData eventData)
     {
-        // 이전 이동과 비교해서 얼마나 이동했는지를 보여줌
-        // 캔버스의 스케일과 맞춰야 하기 때문에
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 }

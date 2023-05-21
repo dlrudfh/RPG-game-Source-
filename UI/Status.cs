@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 
+//상태창
 public class Status : MonoBehaviour, IDragHandler
 {
 
@@ -20,6 +21,7 @@ public class Status : MonoBehaviour, IDragHandler
 
     private void Update()
     {
+        //플레이어 상태 관련 정보를 출력함
         LV.GetComponent<TextMeshProUGUI>().text = "LV." + PlayerPrefs.GetInt("LV");
         DMG.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetFloat("DMG").ToString();
         HP.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetFloat("CHP") + "/" + PlayerPrefs.GetFloat("HP");
@@ -28,10 +30,9 @@ public class Status : MonoBehaviour, IDragHandler
         PTS.GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("PTS") + "PTS";
     }
 
+    // 상태창은 마우스로 드래그가 가능하다.
     public void OnDrag(PointerEventData eventData)
     {
-        // 이전 이동과 비교해서 얼마나 이동했는지를 보여줌
-        // 캔버스의 스케일과 맞춰야 하기 때문에
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 

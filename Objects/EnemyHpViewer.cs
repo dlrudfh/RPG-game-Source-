@@ -1,6 +1,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 
+// 적 체력 바 조작
 public class EnemyHpViewer : MonoBehaviour
 {
     private Enemy enemyHp;
@@ -13,6 +14,7 @@ public class EnemyHpViewer : MonoBehaviour
     }
     private void Update()
     {
+        // 슬라이더 값을 적의 체력 비율에 맞게 업데이트
         hpSlider.value = (float)enemyHp.CurHp / (float)enemyHp.MaxHp;
     }
 }
